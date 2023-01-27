@@ -1,6 +1,11 @@
 # syntax=docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/go:latest as build
-LABEL maintainer="Will Norris <will@willnorris.com>"
+FROM --platform=$BUILDPLATFORM golang:1.19 as build
+LABEL maintainer="Krzysztof Majk <funcmike@atamari.pl>"
+
+# Install webp dev libs.
+RUN apt-get update
+RUN apt-get -y upgrade
+RUN apt-get install -y libwebp-dev
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -10,11 +15,15 @@ COPY . .
 
 ARG TARGETOS
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v ./cmd/imageproxy
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go install -v ./cmd/imageproxy
 
-FROM cgr.dev/chainguard/static:latest
+FROM debian:bullseye-slim
 
-COPY --from=build /app/imageproxy /app/imageproxy
+RUN apt-get update
+RUN apt-get -y upgrade
+RUN apt-get install -y libwebp6
+
+COPY --from=build /go/bin/imageproxy /app/imageproxy
 
 CMD ["-addr", "0.0.0.0:8080"]
 ENTRYPOINT ["/app/imageproxy"]

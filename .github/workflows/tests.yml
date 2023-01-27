@@ -25,11 +25,6 @@ jobs:
           - go-version: 1.17
             platform: ubuntu-latest
 
-          # include windows, but only with the latest Go version, since there
-          # is very little in the library that is platform specific
-          - go-version: 1.x
-            platform: windows-latest
-
           # only update test coverage stats with most recent go version on linux
           - go-version: 1.x
             platform: ubuntu-latest
@@ -43,6 +38,11 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
           cache: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update 
+          sudo apt-get install -y libwebp-dev
 
       - name: Run go test
         run: go test -v -race -coverprofile coverage.txt -covermode atomic ./...

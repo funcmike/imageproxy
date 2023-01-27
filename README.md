@@ -9,7 +9,7 @@ imageproxy is a caching image proxy server written in go.  It features:
 
  - basic image adjustments like resizing, cropping, and rotation
  - access control using allowed hosts list or request signing (HMAC-SHA256)
- - support for jpeg, png, webp (decode only), tiff, and gif image formats
+ - support for jpeg, png, webp, tiff, and gif image formats
    (including animated gifs)
  - caching in-memory, on disk, or with Amazon S3, Google Cloud Storage, Azure
    Storage, or Redis
@@ -286,16 +286,12 @@ However, you can use the `scaleUp` command-line flag to allow this to happen:
 
 ### WebP and TIFF support ###
 
-Imageproxy can proxy remote webp images, but they will be served in either jpeg
-or png format (this is because the golang webp library only supports webp
-decoding) if any transformation is requested.  If no format is specified,
-imageproxy will use jpeg by default.  If no transformation is requested (for
-example, if you are just using imageproxy as an SSL proxy) then the original
-webp image will be served as-is without any format conversion.
+Imageproxy can proxy remote webp images thanks to fork https://github.com/zquestz/imageproxy.
+This fork was created to add full webp support (decoding and encoding) on latest imageproxy upstream version.
 
 Because so few browsers support tiff images, they will be converted to jpeg by
 default if any transformation is requested. To force encoding as tiff, pass the
-"tiff" option. Like webp, tiff images will be served as-is without any format
+"tiff" option. Tiff images will be served as-is without any format
 conversion if no transformation is requested.
 
 
@@ -338,11 +334,11 @@ in the [README](https://github.com/oreillymedia/prototype-imageproxy/blob/master
 
 ### Docker ###
 
-A docker image is available at [`ghcr.io/willnorris/imageproxy`](https://github.com/willnorris/imageproxy/pkgs/container/imageproxy).
+A docker image is available at [`funcmike/imageproxy`](https://github.com/willnorris/imageproxy/pkgs/container/imageproxy).
 
 You can run it by
 ```
-docker run -p 8080:8080 ghcr.io/willnorris/imageproxy -addr 0.0.0.0:8080
+docker run -p 8080:8080 funcmike/imageproxy -addr 0.0.0.0:8080
 ```
 
 Or in your Dockerfile:
