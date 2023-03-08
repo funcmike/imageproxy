@@ -21,7 +21,7 @@ FROM debian:bullseye-slim
 
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y libwebp6
+RUN apt-get install -y libwebp6 ca-certificates
 
 COPY --from=build /go/bin/imageproxy /app/imageproxy
 
