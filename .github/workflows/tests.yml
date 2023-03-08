@@ -45,8 +45,5 @@ jobs:
           sudo apt-get install -y libwebp-dev
 
       - name: Run go test
-        run: go test -v -race -coverprofile coverage.txt -covermode atomic ./...
+        run: go test -v -race ./...
 
-      - name: Upload coverage to Codecov
-        if: ${{ matrix.update-coverage }}
-        uses: codecov/codecov-action@v3
