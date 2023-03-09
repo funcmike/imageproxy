@@ -58,7 +58,7 @@ func TestResizeParams(t *testing.T) {
 		{Options{Height: 128}, 0, 0, false},
 	}
 	for _, tt := range tests {
-		w, h, resize := resizeParams(src, tt.opt)
+		w, h, resize := resizeParams(newImageConfig(src), tt.opt)
 		if w != tt.w || h != tt.h || resize != tt.resize {
 			t.Errorf("resizeParams(%v) returned (%d,%d,%t), want (%d,%d,%t)", tt.opt, w, h, resize, tt.w, tt.h, tt.resize)
 		}

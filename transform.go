@@ -48,6 +48,21 @@ func Transform(img []byte, opt Options) ([]byte, error) {
 		return img, nil
 	}
 
+	config, _, err := image.DecodeConfig(bytes.NewReader(img))
+	if err != nil {
+		return nil, err
+	}
+
+	if w, h, resize := resizeParams(config, opt); !resize {
+		opt.Width = float64(w)
+		opt.Height = float64(h)
+
+		// check again if still is worth to transform image
+		if !opt.transform() {
+			return img, nil
+		}
+	}
+
 	// decode image
 	m, format, err := image.Decode(bytes.NewReader(img))
 	if err != nil {
@@ -149,10 +164,11 @@ func evaluateFloat(f float64, max int) int {
 
 // resizeParams determines if the image needs to be resized, and if so, the
 // dimensions to resize to.
-func resizeParams(m image.Image, opt Options) (w, h int, resize bool) {
+func resizeParams(m image.Config, opt Options) (w, h int, resize bool) {
 	// convert percentage width and height values to absolute values
-	imgW := m.Bounds().Dx()
-	imgH := m.Bounds().Dy()
+	imgW := m.Width
+	imgH := m.Height
+
 	w = evaluateFloat(opt.Width, imgW)
 	h = evaluateFloat(opt.Height, imgH)
 
@@ -291,7 +307,8 @@ func transformImage(m image.Image, opt Options) image.Image {
 	// This is to ensure that any percentage-based values are based off the
 	// size of the original image.
 	rect := cropParams(m, opt)
-	w, h, resize := resizeParams(m, opt)
+
+	w, h, resize := resizeParams(newImageConfig(m), opt)
 
 	// crop if needed
 	if !m.Bounds().Eq(rect) {
@@ -330,4 +347,11 @@ func transformImage(m image.Image, opt Options) image.Image {
 	}
 
 	return m
+}
+
+func newImageConfig(m image.Image) image.Config {
+	return image.Config{
+		ColorModel: m.ColorModel(),
+		Width:      m.Bounds().Dx(),
+		Height:     m.Bounds().Dy()}
 }
